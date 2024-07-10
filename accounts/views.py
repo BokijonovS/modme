@@ -15,6 +15,9 @@ class UserViewSet(ModelViewSet):
     search_fields = ['name']
     permission_classes = [permissions.IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        print(request)
+
 
 class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
@@ -23,6 +26,9 @@ class StudentViewSet(ModelViewSet):
     filterset_fields = ['name']
     search_fields = ['name']
     permission_classes = [permissions.IsAuthenticated]
+
+    #def create(self, request, *args, **kwargs):
+
 
 
 class TeacherViewSet(ModelViewSet):
