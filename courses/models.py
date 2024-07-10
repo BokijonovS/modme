@@ -1,6 +1,6 @@
 from django.db import models
 from multiselectfield import MultiSelectField
-from accounts.models import Teacher
+from accounts.models import User
 
 
 class Group(models.Model):
@@ -16,7 +16,7 @@ class Group(models.Model):
 
     name = models.CharField(max_length=50)
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE)
     days = MultiSelectField(choices=WEEKDAYS)
     room = models.ForeignKey('Room', on_delete=models.CASCADE)
     lesson_start_time = models.TimeField()

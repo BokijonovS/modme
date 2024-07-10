@@ -1,9 +1,13 @@
 from django.contrib.auth.models import Group, Permission
 
 
-def permission(role, perms_list):
-    for i in perms_list:
-        role.permissions.add(Permission.objects.get(codename=i))
+def assign_permissions(group, permission_codenames):
+    for codename in permission_codenames:
+        try:
+            permission = Permission.objects.get(codename=codename)
+            group.permissions.add(permission)
+        except Exception:
+            print(f"Permission with codename '{codename}' does not exist.")
 
 
 teacher_permissions = [
@@ -58,21 +62,21 @@ hr_permissions = [
     "view_room",
 ]
 
-teacher, created = Group.objects.get_or_create(name='Teacher')
-permission(teacher, teacher_permissions)
 
-student, created = Group.objects.get_or_create(name='Student')
-permission(student, student_permissions)
+teacher_group, created = Group.objects.get_or_create(name='Teacher')
+assign_permissions(teacher_group, teacher_permissions)
 
-ceo, created = Group.objects.get_or_create(name='CEO')
-permission(ceo, [perm.codename for perm in Permission.objects.all()])
+student, created1 = Group.objects.get_or_create(name='Student')
+assign_permissions(student, [])
 
-superadmin, created = Group.objects.get_or_create(name='SuperAdmin')
-permission(superadmin, [perm.codename for perm in Permission.objects.all()])
+ceo, created2 = Group.objects.get_or_create(name='CEO')
+assign_permissions(ceo, [perm.codename for perm in Permission.objects.all()])
 
-admin, created = Group.objects.get_or_create(name='Admin')
-permission(admin, admin_permissions)
+superadmin, created3 = Group.objects.get_or_create(name='SuperAdmin')
+assign_permissions(superadmin, [perm.codename for perm in Permission.objects.all()])
 
-hr, created = Group.objects.get_or_create(name='HR')
-permission(hr, hr_permissions)
+admin, created4 = Group.objects.get_or_create(name='Admin')
+assign_permissions(admin, admin_permissions)
 
+hr, created5 = Group.objects.get_or_create(name='HR')
+assign_permissions(hr, hr_permissions)

@@ -46,18 +46,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.phone
-
-
-class Teacher(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-
-    def __str__(self):
-        return self.user.first_name
-
-
-class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    comment = models.CharField(max_length=200, null=True, blank=True)
-
-    def __str__(self):
-        return self.user.first_name
