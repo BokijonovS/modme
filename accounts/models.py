@@ -53,7 +53,7 @@ class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.first_name
+        return self.user.first_name
 
 
 class Student(models.Model):
@@ -61,4 +61,4 @@ class Student(models.Model):
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return self.first_name
+        return self.user.first_name
