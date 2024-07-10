@@ -34,7 +34,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=50)
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
-    photo = models.ImageField(upload_to='media/employees/', null=True, blank=True)
+    photo = models.ImageField(upload_to='media/users/', null=True, blank=True)
 
     username = None
     email = None
@@ -49,20 +49,15 @@ class User(AbstractUser):
         return self.phone
 
 
-class Teacher(User):
-    class Meta:
-        verbose_name = 'Teacher'
-        verbose_name_plural = 'Teachers'
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.first_name
 
 
-class Student(User):
-    class Meta:
-        verbose_name = 'Student'
-        verbose_name_plural = 'Students'
-
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
