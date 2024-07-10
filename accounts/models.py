@@ -43,27 +43,22 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
-    history = HistoricalRecords(inherit=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.phone
 
 
-class Teacher(User):
-    class Meta:
-        verbose_name = 'Teacher'
-        verbose_name_plural = 'Teachers'
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return self.first_name
+        return self.user.first_name
 
 
-class Student(User):
-    class Meta:
-        verbose_name = 'Student'
-        verbose_name_plural = 'Students'
-
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return self.first_name
+        return self.user.first_name
