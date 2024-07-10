@@ -31,10 +31,9 @@ class User(AbstractUser):
     ]
 
     phone = models.CharField(max_length=20, unique=True)
-    role = models.CharField(max_length=50)
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
-    photo = models.ImageField(upload_to='media/employees/', null=True, blank=True)
+    photo = models.ImageField(upload_to='media/users/', null=True, blank=True)
 
     username = None
     email = None
@@ -62,4 +61,3 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.first_name
-
