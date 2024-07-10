@@ -42,7 +42,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
-    history = HistoricalRecords(inherit=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.phone
