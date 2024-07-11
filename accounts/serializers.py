@@ -1,27 +1,22 @@
 from rest_framework import serializers
-from .models import Teacher, Student, Update
+from .models import Teacher, Student
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Teacher
-        fields = '__all__'
+        model = User
+        fields = ['id', 'url', 'first_name', "last_name", 'phone', 'photo', 'birth_date', 'gender', 'groups']
 
 
 class TeacherSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='teacher-detail')
     class Meta:
-        model = Teacher
-        fields = '__all__'
+        model = User
+        fields = ['id', 'url', 'first_name', "last_name", 'phone', 'photo', 'birth_date', 'gender', 'groups']
+        read_only_fields = ['groups']
 
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = '__all__'
-
-
-class UpdateSerializer(serializers.ModelSerializer):
-    '''serializer for model Update'''
-    class Meta:
-        model = Update
         fields = '__all__'
