@@ -3,8 +3,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, filters
 from rest_framework.viewsets import ModelViewSet
 
-from .models import User, Student, Teacher
-from .serializers import (StudentSerializer, TeacherSerializer)
+from .models import User, Student, Teacher, Update
+from .serializers import (StudentSerializer, TeacherSerializer, UpdateSerializer)
 
 
 class UserViewSet(ModelViewSet):
@@ -30,7 +30,6 @@ class StudentViewSet(ModelViewSet):
     #def create(self, request, *args, **kwargs):
 
 
-
 class TeacherViewSet(ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
@@ -38,3 +37,10 @@ class TeacherViewSet(ModelViewSet):
     filterset_fields = ['name']
     search_fields = ['name']
     permission_classes = [permissions.IsAuthenticated]
+
+
+class UpdateViewSet(ModelViewSet):
+    '''This viewset does all the work on model Update and checks if the user is AdminUser'''
+    queryset = Update.objects.all()
+    serializer_class = UpdateSerializer
+    permission_classes = [permissions.IsAdminUser]

@@ -1,6 +1,9 @@
 from simple_history.models import HistoricalRecords
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .emails import send_update_email
 
 
 class CustomUserManager(BaseUserManager):
@@ -34,9 +37,9 @@ class User(AbstractUser):
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     photo = models.ImageField(upload_to='media/users/', null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
 
     username = None
-    email = None
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
@@ -61,3 +64,25 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.first_name
+
+
+class Update(models.Model):
+    '''a model to get update informations from adminuser'''
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.title}: {self.created_at}'
+
+
+@receiver(post_save, sender=Update)
+def send_update_notification(sender, instance, created, **kwargs):
+    '''a method to send a notification when a model is updated'''
+    if created:
+        users = User.objects.all()
+        subject = f"New Update: {instance.title}"
+        message = instance.content
+        for user in users:
+            send_update_email(user.email, subject, message)
+
