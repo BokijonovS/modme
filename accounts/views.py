@@ -3,7 +3,6 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, filters
-from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import User, Student, Teacher, Update, DailyStudentStat
@@ -18,8 +17,8 @@ class UserViewSet(ModelViewSet):
     search_fields = ['name']
     permission_classes = [permissions.IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        print(request)
+    # def create(self, request, *args, **kwargs):
+    #     print(request)
 
 
 class StudentViewSet(ModelViewSet):
@@ -50,7 +49,6 @@ class UpdateViewSet(ModelViewSet):
 def index(request):
     last_stat = DailyStudentStat.objects.last()
 
-    # Check if the last entry's date is not today
     if not last_stat or last_stat.date != timezone.now().date():
         # Create a new DailyStudentStat entry for today
         DailyStudentStat.objects.create(
@@ -58,5 +56,4 @@ def index(request):
             total_count=Student.objects.count()
         )
 
-    # Return a simple HTTP response indicating completion
     return HttpResponse('done', status=200)
