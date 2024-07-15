@@ -1,17 +1,23 @@
+from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, filters, status
+from rest_framework import permissions, filters
 from rest_framework.viewsets import ModelViewSet
 
 from .models import User, Student, Teacher, Update
 from .serializers import (StudentSerializer, TeacherSerializer, UpdateSerializer)
-from .models import User
-from .serializers import UserSerializer, TeacherSerializer
-from .groups import teacher_group
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+from .utils import calculate_daily_change
 
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = StudentSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['name']
+    search_fields = ['name']
     permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
@@ -22,15 +28,17 @@ class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['name']
-    search_fields = ['name']
+    filterset_fields = ['user']
+    search_fields = ['user']
     permission_classes = [permissions.IsAuthenticated]
-
-    #def create(self, request, *args, **kwargs):
 
 
 class TeacherViewSet(ModelViewSet):
+    queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['name']
+    search_fields = ['name']
     permission_classes = [permissions.IsAuthenticated]
 
 
@@ -39,11 +47,11 @@ class UpdateViewSet(ModelViewSet):
     queryset = Update.objects.all()
     serializer_class = UpdateSerializer
     permission_classes = [permissions.IsAdminUser]
-    def get_queryset(self):
-        return User.objects.filter(groups=teacher_group)
 
-    def perform_create(self, serializer):
-        user = serializer.save()
-        user.set_password("system_teacher")
-        user.groups.add(teacher_group)
-        user.save()
+
+class StudentStatsView(APIView):
+    permission_classes = [IsAdminUser]  # Optional, restrict access to admin users
+
+    def get(self, request):
+        daily_change = calculate_daily_change()
+        return Response({'daily_change': daily_change})

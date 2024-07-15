@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .emails import send_update_email
-
+import datetime
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, phone, password=None, **extra_fields):
@@ -61,9 +61,18 @@ class Teacher(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    added_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.first_name
+
+
+class DailyStudentStat(models.Model):
+    date = models.DateField(unique=True)
+    total_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"Stats for {self.date}"
 
 
 class Update(models.Model):
@@ -85,4 +94,3 @@ def send_update_notification(sender, instance, created, **kwargs):
         message = instance.content
         for user in users:
             send_update_email(user.email, subject, message)
-
