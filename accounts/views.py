@@ -1,15 +1,13 @@
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, filters
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .models import User, Student, Teacher, Update
+from .models import User, Student, Teacher, Update, DailyStudentStat
 from .serializers import (StudentSerializer, TeacherSerializer, UpdateSerializer)
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
-from .utils import calculate_daily_change
 
 
 class UserViewSet(ModelViewSet):
@@ -49,9 +47,16 @@ class UpdateViewSet(ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
 
-class StudentStatsView(APIView):
-    permission_classes = [IsAdminUser]  # Optional, restrict access to admin users
+def index(request):
+    last_stat = DailyStudentStat.objects.last()
 
-    def get(self, request):
-        daily_change = calculate_daily_change()
-        return Response({'daily_change': daily_change})
+    # Check if the last entry's date is not today
+    if not last_stat or last_stat.date != timezone.now().date():
+        # Create a new DailyStudentStat entry for today
+        DailyStudentStat.objects.create(
+            date=timezone.now().date(),
+            total_count=Student.objects.count()
+        )
+
+    # Return a simple HTTP response indicating completion
+    return HttpResponse('done', status=200)
