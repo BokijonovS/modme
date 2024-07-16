@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from rest_framework import routers
-from .views import UserViewSet, TeacherViewSet, StudentViewSet, UpdateViewSet, index
+from .views import UserViewSet, TeacherViewSet, StudentViewSet, UpdateViewSet, DailyStudentStatAPIView
 
 '''here i used DefaultRouter to deal with all the things with urls'''
 router = routers.DefaultRouter()
@@ -13,5 +13,5 @@ router.register('updates', UpdateViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('stats-refresh/', index)
+    path('/stats-refresh/', DailyStudentStatAPIView.as_view()),
 ]
