@@ -67,9 +67,10 @@ class Student(models.Model):
         return self.user.first_name
 
 
-class DailyStudentStat(models.Model):
+class DailyStat(models.Model):
     date = models.DateField(unique=True)
-    total_count = models.IntegerField(default=0)
+    student_count = models.IntegerField(default=0)
+    group_count = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Stats for {self.date}"

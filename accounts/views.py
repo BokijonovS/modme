@@ -2,12 +2,14 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import permissions, filters, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from .models import User, Student, Teacher, Update, DailyStudentStat
+from courses.models import Group
+from .models import User, Student, Teacher, Update, DailyStat
 from .serializers import (StudentSerializer, TeacherSerializer, UpdateSerializer)
 
 
@@ -50,22 +52,24 @@ class UpdateViewSet(ModelViewSet):
 
 class DailyStudentStatAPIView(APIView):
     def get(self, request, *args, **kwargs):
-        last_stat = DailyStudentStat.objects.all()
+        last_stat = DailyStat.objects.all()
         if not last_stat:
-            DailyStudentStat.objects.create(
+            DailyStat.objects.create(
                 date=timezone.now().date(),
-                total_count=Student.objects.count()
+                student_count=Student.objects.count(),
+                group_count=Group.objects.count()
             )
             return Response({'message': 'created'}, status=status.HTTP_200_OK)
         else:
-            last_stat = DailyStudentStat.objects.latest('id')
+            last_stat = DailyStat.objects.latest('id')
 
         if last_stat.date == timezone.now().date():
             pass
         else:
-            DailyStudentStat.objects.create(
+            DailyStat.objects.create(
                 date=timezone.now().date(),
-                total_count=Student.objects.count()
+                student_count=Student.objects.count(),
+                group_count=Group.objects.count()
             )
 
             return Response({'message': 'done'}, status=status.HTTP_200_OK)
