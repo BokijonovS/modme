@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from datetime import timedelta
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import permissions, filters, status
@@ -10,6 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from courses.models import Group
 from .models import User, Student, Teacher, Update, DailyStat, GraduatedStudent
+from .utils import percentage_counter
 from .serializers import (StudentSerializer, TeacherSerializer, UpdateSerializer, DailyStatSerializer,
                           GraduatedStudentSerializer)
 
@@ -73,11 +75,11 @@ class DailyStudentStatAPIView(APIView):
         else:
             last_stat = DailyStat.objects.latest('id')
 
-        if last_stat.date == timezone.now().date():
+        if last_stat.date == "2024-07-20":
             pass
         else:
             DailyStat.objects.create(
-                date="2024-07-18",
+                date="2024-07-20",
                 student_count=Student.objects.count(),
                 group_count=Group.objects.count(),
                 graduated_count=GraduatedStudent.objects.count(),
@@ -91,13 +93,25 @@ class StatsAPIView(APIView):
     def get(self, request, *args, **kwargs):
         graduated_students = GraduatedStudent.objects.all()
         graduated_serializer = GraduatedStudentSerializer(graduated_students, many=True)
-
-        daily_stats = DailyStat.objects.all()
+        today = timezone.now().date()
+        one_day_before = today - timedelta(days=-3)
+        daily_stats = DailyStat.objects.filter(date=today)
         daily_stat_serializer = DailyStatSerializer(daily_stats, many=True)
+        print(daily_stat_serializer.data)
+        daily_stats1 = DailyStat.objects.filter(date=one_day_before)
+        daily_stat_serializer1 = DailyStatSerializer(daily_stats1, many=True)
+        print(daily_stat_serializer1.data)
+
+        daily_stat1 = daily_stat_serializer.data
+        daily_stat2 = daily_stat_serializer1.data
+        student_difference = daily_stat1[0]['graduated_count'] - daily_stat2[0]['graduated_count']
+        print(student_difference)
+        print(percentage_counter(daily_stat1[0]['graduated_count'], daily_stat2[0]['graduated_count']))
 
         combined_data = {
             'graduated_students': graduated_serializer.data,
-            'daily_stats': daily_stat_serializer.data
+            'daily_stats': daily_stat_serializer.data,
+            'yesterday_stats': daily_stat_serializer1.data,
         }
 
         return Response(combined_data)
