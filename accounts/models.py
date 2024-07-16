@@ -76,6 +76,14 @@ class DailyStat(models.Model):
         return f"Stats for {self.date}"
 
 
+class GraduatedStudent(models.Model):
+    date = models.DateField(unique=True)
+    student_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.student_name
+
+
 class Update(models.Model):
     '''a model to get update informations from adminuser'''
     title = models.CharField(max_length=100)
