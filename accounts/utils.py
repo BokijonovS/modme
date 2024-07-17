@@ -3,4 +3,6 @@ def percentage_counter(int1, int2):
     b = int2 / 100
     c = a / b
     c = round(c, 2)
-    return c
+    if c == 0:
+        return f"{c}"
+    return f'{c}%'

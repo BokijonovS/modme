@@ -38,7 +38,6 @@ class StudentViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Add the student to RemovedStudent before deleting
         GraduatedStudent.objects.create(student_name=instance.user.first_name)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -75,11 +74,11 @@ class DailyStudentStatAPIView(APIView):
         else:
             last_stat = DailyStat.objects.latest('id')
 
-        if last_stat.date == "2024-07-20":
+        if last_stat.date == timezone.now().date():
             pass
         else:
             DailyStat.objects.create(
-                date="2024-07-20",
+                date=timezone.now().date(),
                 student_count=Student.objects.count(),
                 group_count=Group.objects.count(),
                 graduated_count=GraduatedStudent.objects.count(),
@@ -91,27 +90,67 @@ class DailyStudentStatAPIView(APIView):
 
 class StatsAPIView(APIView):
     def get(self, request, *args, **kwargs):
-        graduated_students = GraduatedStudent.objects.all()
-        graduated_serializer = GraduatedStudentSerializer(graduated_students, many=True)
         today = timezone.now().date()
-        one_day_before = today - timedelta(days=-3)
+        one_day_before = today - timedelta(days=1)
+
         daily_stats = DailyStat.objects.filter(date=today)
         daily_stat_serializer = DailyStatSerializer(daily_stats, many=True)
-        print(daily_stat_serializer.data)
+
         daily_stats1 = DailyStat.objects.filter(date=one_day_before)
         daily_stat_serializer1 = DailyStatSerializer(daily_stats1, many=True)
-        print(daily_stat_serializer1.data)
 
-        daily_stat1 = daily_stat_serializer.data
-        daily_stat2 = daily_stat_serializer1.data
-        student_difference = daily_stat1[0]['graduated_count'] - daily_stat2[0]['graduated_count']
-        print(student_difference)
-        print(percentage_counter(daily_stat1[0]['graduated_count'], daily_stat2[0]['graduated_count']))
+        today = daily_stat_serializer.data
+        yesterday = daily_stat_serializer1.data
+        stats = {}
+        if today:
+            if yesterday:
+                if yesterday[0]['graduated_count'] != 0:
+                    graduated_difference = percentage_counter(
+                        today[0]['graduated_count'],
+                        yesterday[0]['graduated_count']
+                    )
+                    stats['graduated'] = graduated_difference
+                else:
+                    graduated_difference = today[0]['graduated_count'] - yesterday[0]['graduated_count']
+                    stats['graduated'] = graduated_difference
+
+
+                if yesterday[0]['student_count'] != 0:
+                    student_difference = percentage_counter(
+                        today[0]['student_count'],
+                        yesterday[0]['student_count']
+                    )
+                    stats['student'] = student_difference
+                else:
+                    student_difference = today[0]['student_count'] - yesterday[0]['student_count']
+                    stats['student'] = student_difference
+
+                if yesterday[0]['group_count'] != 0:
+                    group_difference = percentage_counter(
+                        today[0]['group_count'],
+                        yesterday[0]['group_count']
+                    )
+                    stats['group'] = group_difference
+                else:
+                    group_difference = today[0]['group_count'] - yesterday[0]['group_count']
+                    stats['group'] = group_difference
+            else:
+                graduated_difference = today[0]['graduated_count']
+                student_difference = today[0]['student_count']
+                group_difference = today[0]['group_count']
+
+                stats['graduated'] = graduated_difference
+                stats['student'] = student_difference
+                stats['group'] = group_difference
+        else:
+            stats['graduated'] = 0
+            stats['student'] = 0
+            stats['group'] = 0
 
         combined_data = {
-            'graduated_students': graduated_serializer.data,
-            'daily_stats': daily_stat_serializer.data,
-            'yesterday_stats': daily_stat_serializer1.data,
+            'graduated_students': stats['graduated'],
+            'student_stats': stats['student'],
+            'group_stats': stats['group'],
         }
 
         return Response(combined_data)
