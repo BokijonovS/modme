@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from .emails import send_update_email
 import datetime
 
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, phone, password=None, **extra_fields):
         if not phone:
