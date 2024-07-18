@@ -7,4 +7,3 @@ from leads.models import Lead, Expectation, Set
 admin.site.register(Lead)
 admin.site.register(Expectation)
 admin.site.register(Set)
-
