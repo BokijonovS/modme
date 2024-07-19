@@ -69,7 +69,7 @@ class Student(models.Model):
 
 
 class DailyStat(models.Model):
-    date = models.DateField(unique=True)
+    date = models.DateField(null=True)
     student_count = models.IntegerField(default=0)
     group_count = models.IntegerField(default=0)
     graduated_count = models.IntegerField(default=0)
@@ -79,7 +79,7 @@ class DailyStat(models.Model):
 
 
 class GraduatedStudent(models.Model):
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField(null=True)
     student_name = models.CharField(max_length=100)
 
     def __str__(self):

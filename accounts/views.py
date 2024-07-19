@@ -63,29 +63,15 @@ class DailyStudentStatAPIView(APIView):
     serializer_class = DailyStatSerializer
     def get(self, request, *args, **kwargs):
         last_stat = DailyStat.objects.all()
-        if not last_stat:
-            DailyStat.objects.create(
-                date=timezone.now().date(),
-                student_count=Student.objects.count(),
-                group_count=Group.objects.count(),
-                graduated_count=GraduatedStudent.objects.count(),
-            )
-            return Response({'message': 'created'}, status=status.HTTP_200_OK)
-        else:
-            last_stat = DailyStat.objects.latest('id')
 
-        if last_stat.date == timezone.now().date():
-            pass
-        else:
-            DailyStat.objects.create(
+        dailystat = DailyStat.objects.create(
                 date=timezone.now().date(),
                 student_count=Student.objects.count(),
                 group_count=Group.objects.count(),
                 graduated_count=GraduatedStudent.objects.count(),
             )
 
-            return Response({'message': 'done'}, status=status.HTTP_200_OK)
-        return Response({'message': 'already done'}, status=status.HTTP_200_OK)
+        return Response({'message': 'done'}, status=status.HTTP_200_OK)
 
 
 class StatsAPIView(APIView):
@@ -101,43 +87,44 @@ class StatsAPIView(APIView):
 
         today = daily_stat_serializer.data
         yesterday = daily_stat_serializer1.data
+        print(today[-1])
+        print(yesterday[-1])
         stats = {}
         if today:
             if yesterday:
-                if yesterday[0]['graduated_count'] != 0:
+                if yesterday[-1]['graduated_count'] != 0:
                     graduated_difference = percentage_counter(
-                        today[0]['graduated_count'],
-                        yesterday[0]['graduated_count']
+                        today[-1]['graduated_count'],
+                        yesterday[-1]['graduated_count']
                     )
                     stats['graduated'] = graduated_difference
                 else:
-                    graduated_difference = today[0]['graduated_count'] - yesterday[0]['graduated_count']
+                    graduated_difference = today[-1]['graduated_count'] - yesterday[-1]['graduated_count']
                     stats['graduated'] = graduated_difference
 
-
-                if yesterday[0]['student_count'] != 0:
+                if yesterday[-1]['student_count'] != 0:
                     student_difference = percentage_counter(
-                        today[0]['student_count'],
-                        yesterday[0]['student_count']
+                        today[-1]['student_count'],
+                        yesterday[-1]['student_count']
                     )
                     stats['student'] = student_difference
                 else:
-                    student_difference = today[0]['student_count'] - yesterday[0]['student_count']
+                    student_difference = today[-1]['student_count'] - yesterday[-1]['student_count']
                     stats['student'] = student_difference
 
-                if yesterday[0]['group_count'] != 0:
+                if yesterday[-1]['group_count'] != 0:
                     group_difference = percentage_counter(
-                        today[0]['group_count'],
-                        yesterday[0]['group_count']
+                        today[-1]['group_count'],
+                        yesterday[-1]['group_count']
                     )
                     stats['group'] = group_difference
                 else:
-                    group_difference = today[0]['group_count'] - yesterday[0]['group_count']
+                    group_difference = today[-1]['group_count'] - yesterday[-1]['group_count']
                     stats['group'] = group_difference
             else:
-                graduated_difference = today[0]['graduated_count']
-                student_difference = today[0]['student_count']
-                group_difference = today[0]['group_count']
+                graduated_difference = today[-1]['graduated_count']
+                student_difference = today[-1]['student_count']
+                group_difference = today[-1]['group_count']
 
                 stats['graduated'] = graduated_difference
                 stats['student'] = student_difference
