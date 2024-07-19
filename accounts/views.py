@@ -11,6 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from courses.models import Group
 from .models import User, Student, Teacher, Update, DailyStat, GraduatedStudent
+from .groups import teacher_group
 from .utils import percentage_counter
 from .serializers import (StudentSerializer, TeacherSerializer, UpdateSerializer, DailyStatSerializer,
                           GraduatedStudentSerializer)
@@ -23,9 +24,6 @@ class UserViewSet(ModelViewSet):
     filterset_fields = ['first_name']
     search_fields = ['first_name']
     permission_classes = [permissions.IsAuthenticated]
-
-    # def create(self, request, *args, **kwargs):
-    #     print(request)
 
 
 class StudentViewSet(ModelViewSet):

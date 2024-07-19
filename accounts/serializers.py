@@ -1,23 +1,30 @@
 from rest_framework import serializers
-from .models import Teacher, Student, Update, GraduatedStudent, DailyStat
+from .models import User, Teacher, Student, Update, GraduatedStudent, DailyStat
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Teacher
-        fields = '__all__'
+        model = User
+        fields = ['phone', 'first_name', 'password' ]
 
 
 class TeacherSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
     class Meta:
         model = Teacher
-        fields = '__all__'
+        fields = ['id', 'user']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user = User.objects.create(**user_data)
+        teacher1 = Teacher.objects.create(user=user)
+        return teacher1
 
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = '__all__'
+        fields = ['phone', 'first_name', 'password' ]
 
 
 class UpdateSerializer(serializers.ModelSerializer):
